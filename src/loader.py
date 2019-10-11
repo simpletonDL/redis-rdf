@@ -35,9 +35,9 @@ def load(rdf_path: str, redis_graph_name: str, redis_host: str, redis_port: int)
     redis_graph = Graph(redis_graph_name, redis_connector)
 
     for subj, pred, obj in tqdm(rdf_graph):
-        edge = Edge(Node(label='Node', properties={'value': get_value(rdf_graph, subj)}),
+        edge = Edge(Node(label='Node', properties={'value': subj}),
                     get_value(rdf_graph, pred),
-                    Node(label='Node', properties={'value': get_value(rdf_graph, obj)}))
+                    Node(label='Node', properties={'value': obj}))
         insert_edge(redis_graph, edge)
 
-    assert len(rdf_graph) == get_total_edges(redis_graph)
+    assert len(rdf_graph) <= get_total_edges(redis_graph)
