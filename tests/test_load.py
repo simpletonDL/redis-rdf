@@ -20,13 +20,13 @@ class TestLoad(TestCase):
         self.redis_connector = Redis(host='localhost', port=6379)
 
     def testLoadTxt(self):
-        self.loadAndCheck(load_rdf_graph('../examples/graph.txt'))
+        self.loadAndCheck(load_rdf_graph('examples/graph.txt'))
 
     def testSmallXml(self):
-        self.loadAndCheck(load_rdf_graph('../examples/graph.xml'))
+        self.loadAndCheck(load_rdf_graph('examples/graph.xml'))
 
     def testBigXml(self):
-        self.loadAndCheck(load_rdf_graph('../examples/pizza.xml'))
+        self.loadAndCheck(load_rdf_graph('examples/pizza.xml'))
 
     def loadAndCheck(self, rdf_graph):
         redis_graph = Graph(self.randomGraphName(), self.redis_connector)
