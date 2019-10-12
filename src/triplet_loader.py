@@ -1,5 +1,6 @@
-import rdflib
 import pathlib
+
+import rdflib
 
 
 def load_triplets(filename: str):
