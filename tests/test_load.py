@@ -4,13 +4,14 @@ import string
 from unittest import TestCase
 
 from redis import Redis
-from redisgraph import Graph, Edge
+from redisgraph import Edge as RedisEdge
 
-from src.loader import load_in_redis, make_edge
+from src.graph import Graph as RedisGraph
+from src.loader import load_in_redis, make_node
 from src.triplet_loader import load_rdf_graph
 
 
-def print_edge_with_alias(edge: Edge, alias: str):
+def print_edge_with_alias(edge: RedisEdge, alias: str):
     return f'{edge.src_node}-[{alias}: {edge.relation} {edge.toString()}]->{edge.dest_node}'
 
 
@@ -29,26 +30,31 @@ class TestLoad(TestCase):
         self.loadAndCheck(load_rdf_graph('examples/pizza.xml'))
 
     def loadAndCheck(self, rdf_graph):
-        redis_graph = Graph(self.randomGraphName(), self.redis_connector)
+        redis_graph = RedisGraph(self.randomGraphName(), self.redis_connector)
 
         # load
         load_in_redis(rdf_graph, redis_graph)
 
         # check every edge
         for subj, pred, obj in rdf_graph:
-            self.assertTrue(self.checkEdgeExist(redis_graph, make_edge(subj, pred, obj)))
-            self.assertTrue(self.checkEdgeExist(redis_graph, make_edge(obj, f'{pred}_r', subj)))
+            self.assertTrue(self.checkEdgeExist(redis_graph, self.makeEdge(subj, pred, obj)))
+            self.assertTrue(self.checkEdgeExist(redis_graph, self.makeEdge(obj, f'{pred}_r', subj)))
 
         # check total edges count
         self.assertEqual(len(rdf_graph) * 2, self.countEdges(redis_graph))
 
     @staticmethod
-    def checkEdgeExist(redis_graph: Graph, edge: Edge):
-        query = f'MATCH {print_edge_with_alias(edge, "edge")} RETURN COUNT(edge)'
-        return redis_graph.query(query).result_set[0][0] > 0
+    def makeEdge(subj, pred, obj):
+        return RedisEdge(make_node(str(subj), 'src'), pred, make_node(str(obj)), 'dst')
 
     @staticmethod
-    def countEdges(redis_graph: Graph):
+    def checkEdgeExist(redis_graph: RedisGraph, edge: RedisEdge):
+        query = f'MATCH {print_edge_with_alias(edge, "edge")} RETURN COUNT(edge)'
+        count = redis_graph.query(query).result_set[0][0]
+        return count > 0
+
+    @staticmethod
+    def countEdges(redis_graph: RedisGraph):
         query = f'MATCH ()-[r]->() RETURN COUNT(r)'
         return redis_graph.query(query).result_set[0][0]
 
