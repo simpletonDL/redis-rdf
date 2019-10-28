@@ -8,34 +8,37 @@ import redis
 COMMON_CMD = 'graph.cfg'
 ALGO_LIST = ['cpu1', 'cpu3']
 
-GRAMMAR_PATH = '/home/jblab/CFPQ-with-RedisGraph/CFPQ_Data/data/graphs/RDF/Grammars'
+RDF_GRAMMAR_PATH = '/home/jblab/CFPQ-with-RedisGraph/CFPQ_Data/data/graphs/RDF/Grammars'
+WS_GRAMMAR_PATH = '/home/jblab/CFPQ-with-RedisGraph/CFPQ_Data/data/graphs/WorstCase/Grammars/Brackets.txt'
 
 TEST_SUITE = [
-    ('geospeices.txt', f'{GRAMMAR_PATH}/geo.cnf'),
-    ('go.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('go-hierarchy.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('eclass_514en.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('enzyme.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('atom-primitive.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('funding.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('people_pets.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('wine.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('biomedical-mesure-primitive.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('generations.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('pizza.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('travel.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('core.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('foaf.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('pathways.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('skos.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('univ-bench.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt')
+    ('geospeices.txt', f'{RDF_GRAMMAR_PATH}/geo.cnf'),
+    ('go.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('go-hierarchy.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('eclass_514en.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('enzyme.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('atom-primitive.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('funding.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('people_pets.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('wine.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('biomedical-mesure-primitive.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('generations.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('pizza.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('travel.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('core.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('foaf.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('pathways.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('skos.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('univ-bench.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('4', WS_GRAMMAR_PATH),
+    ('8', WS_GRAMMAR_PATH),
+    ('16', WS_GRAMMAR_PATH),
+    ('32', WS_GRAMMAR_PATH),
+    ('64', WS_GRAMMAR_PATH),
+    ('128', WS_GRAMMAR_PATH),
+    ('256', WS_GRAMMAR_PATH),
+    ('512', WS_GRAMMAR_PATH)
 ]
-
-# TEST_SUITE_TEST = (
-#     ('128', '/home/simleton/Repo/CFPQ_Data/data/graphs/WorstCase/Grammars/Brackets.txt'),
-#     ('256', '/home/simleton/Repo/CFPQ_Data/data/graphs/WorstCase/Grammars/Brackets.txt'),
-#     ('32', '/home/simleton/Repo/CFPQ_Data/data/graphs/WorstCase/Grammars/Brackets.txt'),
-# )
 
 r = redis.Redis()
 
@@ -48,7 +51,6 @@ def test_performance_on_graph(graph_name, grammar_path):
         for algo in ALGO_LIST
     ]
     res_dict = {
-        'name': graph_name,
         'iterations': [],
         'control_sum': [],
         'time': []
@@ -63,7 +65,10 @@ def test_performance_on_graph(graph_name, grammar_path):
 
 
 def test_performance():
-    total_res = {}
+    total_res = {
+        'name': [],
+        'grammar': []
+    }
     for graph_name, grammar_path in TEST_SUITE:
         res_test = test_performance_on_graph(graph_name, grammar_path)
         for column in['iterations', 'control_sum', 'time']:
@@ -71,6 +76,8 @@ def test_performance():
                 key = f'{column}_{algo}'
                 total_res.setdefault(key, [])
                 total_res[key].append(value)
+        total_res['name'].append(graph_name)
+        total_res['grammar'].append(grammar_path.split('/')[-1])
     return total_res
 
 
