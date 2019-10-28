@@ -24,7 +24,7 @@ def main():
 
     logging.disable(logging.WARNING)
 
-    if args.dir_path:
+    if 'dir_path' in args:
         for file in os.listdir(args.dir_path):
             load(f'{args.dir_path}/{file}', file, args.host, args.port)
     else:
