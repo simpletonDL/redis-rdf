@@ -20,7 +20,7 @@ TEST_SUITE = [
     ('funding.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('people_pets.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('wine.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('biomedical-mesure-primitive.txt', 'f{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
+    ('biomedical-mesure-primitive.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('generations.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('pizza.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('travel.txt', f'{GRAMMAR_PATH}/GPPerf1_cnf.txt'),
