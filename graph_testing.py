@@ -30,14 +30,14 @@ TEST_SUITE = [
     ('pathways.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('skos.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
     ('univ-bench.txt', f'{RDF_GRAMMAR_PATH}/GPPerf1_cnf.txt'),
-    ('4', WS_GRAMMAR_PATH),
-    ('8', WS_GRAMMAR_PATH),
-    ('16', WS_GRAMMAR_PATH),
-    ('32', WS_GRAMMAR_PATH),
-    ('64', WS_GRAMMAR_PATH),
-    ('128', WS_GRAMMAR_PATH),
-    ('256', WS_GRAMMAR_PATH),
-    ('512', WS_GRAMMAR_PATH)
+    ('worstcase_4.txt', WS_GRAMMAR_PATH),
+    ('worstcase_8.txt', WS_GRAMMAR_PATH),
+    ('worstcase_16.txt', WS_GRAMMAR_PATH),
+    ('worstcase_32.txt', WS_GRAMMAR_PATH),
+    ('worstcase_64.txt', WS_GRAMMAR_PATH),
+    ('worstcase_128.txt', WS_GRAMMAR_PATH),
+    ('worstcase_256.txt', WS_GRAMMAR_PATH),
+    ('worstcase_512.txt', WS_GRAMMAR_PATH)
 ]
 
 r = redis.Redis()
