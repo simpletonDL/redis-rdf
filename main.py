@@ -1,6 +1,6 @@
 import os
 
-from src import load
+from src.redis_loader import load
 from argparse import ArgumentParser
 import logging
 
