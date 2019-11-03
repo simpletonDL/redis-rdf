@@ -13,7 +13,11 @@ def generate_free_scale_graph(n, k, labels, reverse_edges=False):
         g[i] = []
         degree = np.append(degree, 0)
         for to in to_vertices:
-            g[i].append((to, np.random.choice(labels)))
+            label = np.random.choice(labels)
+            g[i].append((to, label))
             degree[to] += 1
             degree[i] += 1
+
+            if reverse_edges:
+                g[to].append((i, label))
     return g
