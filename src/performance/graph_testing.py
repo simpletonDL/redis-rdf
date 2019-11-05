@@ -1,70 +1,96 @@
-import math
-
-import redis
-from statistics import mean, median
-
+from pprint import pprint
+from statistics import mean
 from tqdm import tqdm
 
-COMMON_CMD = 'graph.cfg'
+from src.utils.mem_prof import MemDeltaProfiler
+from src.utils.cfpq_query import CfpqResponse, cfpq_query
+
+
 ALGO_LIST = ['cpu1', 'cpu3']
+MEM_INTERVAL_COUNT = 20
 
 
-def test_performance_on_graph(graph_name, grammar_path, execute_count=1, statistics=(mean,)):
-    r = redis.Redis()
-    resp_query = [
-        [
-            [
-                s.decode('UTF-8')
-                for s in r.execute_command(COMMON_CMD, algo, graph_name, grammar_path)
-            ]
-            for _ in range(execute_count)
-        ]
-        for algo in ALGO_LIST
-    ]
+def get_grammar_file(grammar_path):
+    return grammar_path.split('/')[-1]
+
+
+def test_performance_on_graph(graph_name, grammar_path, redis_instance, redis_pid, exec_count=1):
     result = {
         algo: {
-            column: None
-            for column in ['iterations', 'control_sum', 'time'] + [statistic.__name__ for statistic in statistics]
+            column: []
+            for column in ['iterations', 'control_sum', 'time', 'mem']
         } for algo in ALGO_LIST
     }
 
-    def get_iterations(resp):
-        return resp[1].split()[-1]
+    for algo in ALGO_LIST:
+        # Get approximately query time
+        exec_time = cfpq_query(algo, graph_name, grammar_path, redis_instance).time * 1.5
+        # exec_time = 1
 
-    def get_control_sum(resp):
-        return ', '.join(resp[2:])
+        # Run exec_count times algorithm
+        for _ in tqdm(range(exec_count)):
+            mem_prof = MemDeltaProfiler()
+            mem_prof.start(redis_pid, exec_time / MEM_INTERVAL_COUNT, exec_time)
+            resp = cfpq_query(algo, graph_name, grammar_path, redis_instance)
+            max_mem = mem_prof.end()
 
-    def get_time(resp):
-        return float(resp[0].split()[-1])
-
-    for algo, responses in zip(ALGO_LIST, resp_query):
-        control_sum = get_control_sum(responses[0])
-        assert all(get_control_sum(response) == control_sum for response in responses)
-        result[algo]['control_sum'] = control_sum
-
-        iterations = get_iterations(responses[0])
-        assert all(get_iterations(response) == iterations for response in responses)
-        result[algo]['iterations'] = iterations
-
-        for statistic in statistics:
-            result[algo][statistic.__name__] = statistic([get_time(response) for response in responses])
-
+            result[algo]['iterations'].append(resp.iterations)
+            result[algo]['control_sum'].append(resp.control_sums)
+            result[algo]['time'].append(resp.time)
+            result[algo]['mem'].append(max_mem)
     return result
 
 
-def test_performance_on_suite(test_suite, execute_count=10, statistics=(mean, min, max)):
-    total_results = {
+def test_performance_on_suite(test_suite, redis_instance, redis_pid, execute_count=10, statistics=(mean, min, max)):
+    full_results = {
         'graph': [],
         'grammar': []
     }
-    for graph_name, grammar_path in tqdm(test_suite):
-        total_results['graph'].append(graph_name)
-        total_results['grammar'].append(grammar_path.split('/')[-1])
 
-        res_test = test_performance_on_graph(graph_name, grammar_path, execute_count, statistics)
+    statistics_results = {
+        'graph': [],
+        'grammar': []
+    }
+
+    for graph_name, grammar_path in tqdm(test_suite):
+        res_test = test_performance_on_graph(graph_name, grammar_path, redis_instance, redis_pid, execute_count)
+
+        full_results['graph'].extend([graph_name] * execute_count)
+        full_results['grammar'].extend([get_grammar_file(grammar_path)] * execute_count)
+
+        statistics_results['graph'].append(graph_name)
+        statistics_results['grammar'].append(get_grammar_file(grammar_path))
+
         for algo, execute_info in res_test.items():
-            for column, value in execute_info.items():
+            # Write total results
+            for column, values in execute_info.items():
                 key = f'{column}_{algo}'
-                total_results.setdefault(key, [])
-                total_results[key].append(value)
-    return total_results
+                full_results.setdefault(key, [])
+                full_results[key].extend(values)
+
+            # Write statistics
+            for column in ['control_sum', 'iterations']:
+                first_value = execute_info[column][0]
+                assert all(x == first_value for x in execute_info[column])
+
+                key = f'{column}_{algo}'
+                statistics_results.setdefault(key, [])
+                statistics_results[key].append(first_value)
+
+            for column in ['time', 'mem']:
+                for statistic in statistics:
+                    key = f'{column}_{statistic.__name__}_{algo}'
+                    statistics_results.setdefault(key, [])
+                    statistics_results[key].append(statistic(execute_info[column]))
+
+    return full_results, statistics_results
+
+
+# SF_GRAMMAR_PATH = '/home/simleton/Repo/redis-rdf/src/graph_gen/grammars/an_bm_cm_dn.txt'
+# NEO4J = [
+#     ('directed_free_scale_net_500_10.txt',  SF_GRAMMAR_PATH),
+# ]
+#
+#
+# xs = test_performance_on_suite(NEO4J, 2)
+# print(xs[1])
