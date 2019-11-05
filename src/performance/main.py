@@ -4,7 +4,7 @@ import datetime
 import os
 
 import pandas as pd
-from src.performance.graph_testing import test_performance_on_suite
+from graph_testing import test_performance_on_suite
 from argparse import ArgumentParser
 
 import redis

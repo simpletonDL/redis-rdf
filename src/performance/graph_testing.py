@@ -1,9 +1,8 @@
-from pprint import pprint
 from statistics import mean
 from tqdm import tqdm
 
-from src.utils.mem_prof import MemDeltaProfiler
-from src.utils.cfpq_query import CfpqResponse, cfpq_query
+from mem_prof import MemDeltaProfiler
+from cfpq_query import cfpq_query
 
 
 ALGO_LIST = ['cpu1', 'cpu3']
