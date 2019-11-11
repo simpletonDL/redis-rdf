@@ -1,8 +1,9 @@
+import time
 from statistics import mean
 from tqdm import tqdm
 
-from mem_prof import MemDeltaProfiler
-from cfpq_query import cfpq_query
+from src.utils.mem_prof import MemDeltaProfiler
+from src.utils.cfpq_query import cfpq_query
 
 
 ALGO_LIST = ['cpu1', 'cpu3']
@@ -13,34 +14,37 @@ def get_grammar_file(grammar_path):
     return grammar_path.split('/')[-1]
 
 
-def test_performance_on_graph(graph_name, grammar_path, redis_instance, redis_pid, exec_count=1):
+def test_performance_on_graph(graph_name, grammar_path, redis_instance, exec_count=1):
     result = {
         algo: {
             column: []
-            for column in ['iterations', 'control_sum', 'time', 'mem']
+            for column in ['iterations', 'control_sum', 'time', 'rss', 'vms', 'shared']
         } for algo in ALGO_LIST
     }
 
     for algo in ALGO_LIST:
         # Get approximately query time
-        exec_time = cfpq_query(algo, graph_name, grammar_path, redis_instance).time * 1.5
+        # exec_time = cfpq_query(algo, graph_name, grammar_path, redis_instance).time * 1.5
         # exec_time = 1
 
         # Run exec_count times algorithm
-        for _ in tqdm(range(exec_count)):
-            mem_prof = MemDeltaProfiler()
-            mem_prof.start(redis_pid, exec_time / MEM_INTERVAL_COUNT, exec_time)
+        for _ in range(exec_count):
+            # mem_prof = MemDeltaProfiler()
+            # mem_prof.start(redis_pid, exec_time / MEM_INTERVAL_COUNT, exec_time)
             resp = cfpq_query(algo, graph_name, grammar_path, redis_instance)
-            max_mem = mem_prof.end()
+            # max_mem = mem_prof.end()
 
             result[algo]['iterations'].append(resp.iterations)
             result[algo]['control_sum'].append(resp.control_sums)
             result[algo]['time'].append(resp.time)
-            result[algo]['mem'].append(max_mem)
+            result[algo]['rss'].append(resp.rss)
+            result[algo]['vms'].append(resp.vms)
+            result[algo]['shared'].append(resp.shared)
+            # result[algo]['mem'].append(max_mem)
     return result
 
 
-def test_performance_on_suite(test_suite, redis_instance, redis_pid, execute_count=10, statistics=(mean, min, max)):
+def test_performance_on_suite(test_suite, redis_instance, execute_count=10, statistics=(mean, min, max)):
     full_results = {
         'graph': [],
         'grammar': []
@@ -52,7 +56,7 @@ def test_performance_on_suite(test_suite, redis_instance, redis_pid, execute_cou
     }
 
     for graph_name, grammar_path in tqdm(test_suite):
-        res_test = test_performance_on_graph(graph_name, grammar_path, redis_instance, redis_pid, execute_count)
+        res_test = test_performance_on_graph(graph_name, grammar_path, redis_instance, execute_count)
 
         full_results['graph'].extend([graph_name] * execute_count)
         full_results['grammar'].extend([get_grammar_file(grammar_path)] * execute_count)
@@ -76,20 +80,10 @@ def test_performance_on_suite(test_suite, redis_instance, redis_pid, execute_cou
                 statistics_results.setdefault(key, [])
                 statistics_results[key].append(first_value)
 
-            for column in ['time', 'mem']:
+            for column in ['time', 'rss', 'vms', 'shared']:
                 for statistic in statistics:
                     key = f'{column}_{statistic.__name__}_{algo}'
                     statistics_results.setdefault(key, [])
                     statistics_results[key].append(statistic(execute_info[column]))
 
     return full_results, statistics_results
-
-
-# SF_GRAMMAR_PATH = '/home/simleton/Repo/redis-rdf/src/graph_gen/grammars/an_bm_cm_dn.txt'
-# NEO4J = [
-#     ('directed_free_scale_net_500_10.txt',  SF_GRAMMAR_PATH),
-# ]
-#
-#
-# xs = test_performance_on_suite(NEO4J, 2)
-# print(xs[1])

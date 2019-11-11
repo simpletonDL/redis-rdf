@@ -26,7 +26,7 @@ def main():
     # logging.disable(logging.WARNING)
 
     if 'dir_path' in args:
-        for file in os.listdir(args.dir_path):
+        for file in filter(lambda s: not s.startswith('.'), os.listdir(args.dir_path)):
             load(f'{args.dir_path}/{file}', file, args.host, args.port)
     else:
         load(args.RDF_PATH, args.GRAPH_NAME, args.host, args.port)
