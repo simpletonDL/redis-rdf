@@ -23,12 +23,14 @@ def test_performance_on_graph(graph_name, grammar_path, redis_instance, exec_cou
     }
 
     for algo in ALGO_LIST:
+        print(f'\tAlgo: {algo}')
         # Get approximately query time
         # exec_time = cfpq_query(algo, graph_name, grammar_path, redis_instance).time * 1.5
         # exec_time = 1
 
         # Run exec_count times algorithm
-        for _ in range(exec_count):
+        for i in range(exec_count):
+            print(f'\t\tIter: {i}/{exec_count}')
             # mem_prof = MemDeltaProfiler()
             # mem_prof.start(redis_pid, exec_time / MEM_INTERVAL_COUNT, exec_time)
             resp = cfpq_query(algo, graph_name, grammar_path, redis_instance)
@@ -55,7 +57,8 @@ def test_performance_on_suite(test_suite, redis_instance, execute_count=10, stat
         'grammar': []
     }
 
-    for graph_name, grammar_path in tqdm(test_suite):
+    for graph_name, grammar_path in test_suite:
+        print(f'Graph: {graph_name}\n')
         res_test = test_performance_on_graph(graph_name, grammar_path, redis_instance, execute_count)
 
         full_results['graph'].extend([graph_name] * execute_count)

@@ -1,19 +1,27 @@
 import os
+from configparser import ConfigParser
+from pprint import pprint
 from typing import List
+
+
+conf_parser = ConfigParser()
+conf_parser.read('config.ini')
+CFPQ_DATA_HOST = conf_parser.get('host_paths', 'CFPQ_Data')
+CFPQ_DATA_CLIENT = conf_parser.get('client_paths', 'CFPQ_Data')
 
 
 def _get_grammar_path(cfpq_data: str, suite: str, grammar: str):
     return os.path.join(cfpq_data, 'data', 'graphs', suite, 'Grammars', grammar)
 
 
-def get_additional_cases(cfpq_data: str):
+def get_additional_cases():
     return [
-        ('geospeices.txt', _get_grammar_path(cfpq_data, 'RDF', 'geo.cnf'))
+        ('geospeices.txt', _get_grammar_path(CFPQ_DATA_HOST, 'RDF', 'geo.cnf'))
     ]
 
 
-def get_suits_names(cfpq_data: str):
-    suits_path = os.path.join(cfpq_data, 'data', 'graphs')
+def get_suits_names():
+    suits_path = os.path.join(CFPQ_DATA_CLIENT, 'data', 'graphs')
     return os.listdir(suits_path)
 
 
@@ -29,31 +37,31 @@ def get_grammar_cases():
     }
 
 
-def get_graph_cases(cfpq_data: str):
-    suites_dir = os.path.join(cfpq_data, 'data', 'graphs')
+def get_graph_cases():
+    suites_dir = os.path.join(CFPQ_DATA_CLIENT, 'data', 'graphs')
 
     g_test_suits = {}
-    for g_file in os.listdir(suites_dir):
-        g_test_suits[g_file] = [g for g in  os.listdir(os.path.join(suites_dir, g_file, 'Matrices'))
+    for g_file in get_suits_names():
+        g_test_suits[g_file] = [g for g in os.listdir(os.path.join(suites_dir, g_file, 'Matrices'))
                                 if not g.startswith('.')]
     return g_test_suits
 
 
-def _get_suits_cases(cfpq_data: str, suits: List[str]):
-    graph_cases = get_graph_cases(cfpq_data)
+def _get_suits_cases(suits: List[str]):
+    graph_cases = get_graph_cases()
     grammar_cases = get_grammar_cases()
 
     return sum([
-        sorted([(graph_case, _get_grammar_path(cfpq_data, suite, grammar_case))
+        sorted([(graph_case, _get_grammar_path(CFPQ_DATA_HOST, suite, grammar_case))
                 for graph_case in graph_cases[suite]
                 for grammar_case in grammar_cases[suite]],
                key=lambda case: (case[1], case[0]))
         for suite in suits], [])
 
 
-def get_suite_cases(suite: str, cfpq_data: str):
-    return _get_suits_cases(cfpq_data, [suite])
+def get_suite_cases(suite: str):
+    return _get_suits_cases([suite])
 
 
-def get_total_cases(cfpq_data: str):
-    return get_additional_cases(cfpq_data) + _get_suits_cases(cfpq_data, get_suits_names(cfpq_data))
+def get_total_cases():
+    return get_additional_cases() + _get_suits_cases(get_suits_names())

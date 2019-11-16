@@ -17,16 +17,10 @@ ADDITIONAL = 'additional'
 
 
 def main():
-    # Get total test cases
-    conf_parser = ConfigParser()
-    conf_parser.read('config.ini')
-    cfpq_data = conf_parser.get('repo_paths', 'CFPQ_Data')
-
-
     # Parse args
     parser = ArgumentParser('Launch tests query suits')
     parser.add_argument('test_suite_name', help='name of test suite',
-                        choices=get_suits_names(cfpq_data) + [FULL, ADDITIONAL], default='FULL')
+                        choices=get_suits_names() + [FULL, ADDITIONAL], default='FULL')
     parser.add_argument('--host', help='redis host name', default='localhost')
     parser.add_argument('--port', help='redis port', default=6379)
     parser.add_argument('--out', help='response output dir path', default='results')
@@ -36,11 +30,11 @@ def main():
     test_suite_name = args.test_suite_name
 
     if test_suite_name == FULL:
-        test_cases = get_total_cases(cfpq_data)
+        test_cases = get_total_cases()
     elif test_suite_name == ADDITIONAL:
-        test_cases = get_additional_cases(cfpq_data)
+        test_cases = get_additional_cases()
     else:
-        test_cases = get_suite_cases(test_suite_name, cfpq_data)
+        test_cases = get_suite_cases(test_suite_name)
 
     # Run test performance
     redis_instance = redis.Redis(args.host, args.port)
