@@ -51,6 +51,5 @@ def load_dumps(cfpq_data_path: str, redis_path, redis_dumps_path: str, suits, po
             os.replace('dump.rdb', os.path.join(redis_dumps_path, graph.replace('.txt', '.rdb')))
 
 
-def load_dumps_suit(suits):
-    conf = Config('../config.ini')
+def load_dumps_suit(suits, conf):
     load_dumps(conf.cfpq_data_path, conf.redis_path, conf.redis_dumps_path, suits)

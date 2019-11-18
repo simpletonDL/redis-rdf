@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="cfpq_redis-simpletondl",
-    version="0.0.1",
+    version="0.0.3",
     author="Khoroshev and Terekhov",
     author_email="simpletondl@yandex.ru",
     description="Cfpq with python on RedisGraph",

@@ -11,5 +11,5 @@ class Config:
         self.redis_dumps_path: str = conf_parser.get('common', 'redis_dumps_path')
         self.cfpq_data_path: str = conf_parser.get('common', 'CFPQ_Data_path')
 
-        self.redis_bin: str = os.path.join(self.redis_path, 'cfpq_redis', 'redis-server')
+        self.redis_bin: str = os.path.join(self.redis_path, 'src', 'redis-server')
         self.redis_conf: str = os.path.join(self.redis_path, 'redis.conf')
