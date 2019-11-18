@@ -29,12 +29,12 @@ def stop_redis_server(port=6379):
     print('Redis has stop')
 
 
-def load_dumps(cfpq_data_path: str, redis_path, redis_dumps_path: str, port=6379, host='localhost'):
-    redis_bin_path = os.path.join(redis_path, 'cfpq_redis', 'redis-server')
+def load_dumps(cfpq_data_path: str, redis_path, redis_dumps_path: str, suits, port=6379, host='localhost'):
+    redis_bin_path = os.path.join(redis_path, 'src', 'redis-server')
     redis_conf_path = os.path.join(redis_path, 'redis.conf')
 
     graph_suit_dir = os.path.join(cfpq_data_path, 'data', 'graphs')
-    for suite in ['RDF']:  # os.listdir(graph_suit_dir):
+    for suite in suits:
         graph_dir = os.path.join(graph_suit_dir, suite, 'Matrices')
 
         for graph in filter(lambda s: not s.startswith('.'), os.listdir(graph_dir)):
@@ -51,8 +51,6 @@ def load_dumps(cfpq_data_path: str, redis_path, redis_dumps_path: str, port=6379
             os.replace('dump.rdb', os.path.join(redis_dumps_path, graph.replace('.txt', '.rdb')))
 
 
-# load_dumps(CFPQ_DATA_PATH, REDIS_PATH, REDIS_DUMPS_PATH)
-# conf = Config('../config.ini')
-# start_redis_server(conf.redis_bin, conf.redis_conf, os.path.join(conf.redis_dumps_path, 'core.rdb'))
-
-# print(conf.redis_path, conf.cfpq_data_path, conf.redis_dumps_path)
+def load_dumps_suit(suits):
+    conf = Config('../config.ini')
+    load_dumps(conf.cfpq_data_path, conf.redis_path, conf.redis_dumps_path, suits)
