@@ -6,9 +6,9 @@ from unittest import TestCase
 from redis import Redis
 from redisgraph import Edge as RedisEdge
 
-from src.redis_loader.graph import Graph as RedisGraph
-from src.redis_loader.loader import load_in_redis, make_node
-from src.redis_loader.triplet_loader import load_rdf_graph
+from cfpq_redis.redis_loader.graph import Graph as RedisGraph
+from cfpq_redis.redis_loader.loader import load_in_redis, make_node
+from cfpq_redis.redis_loader.triplet_loader import load_rdf_graph
 
 
 def print_edge_with_alias(edge: RedisEdge, alias: str):
@@ -45,7 +45,7 @@ class TestLoad(TestCase):
 
     @staticmethod
     def makeEdge(subj, pred, obj):
-        return RedisEdge(make_node(str(subj), 'src'), pred, make_node(str(obj)), 'dst')
+        return RedisEdge(make_node(str(subj), 'cfpq_redis'), pred, make_node(str(obj)), 'dst')
 
     @staticmethod
     def checkEdgeExist(redis_graph: RedisGraph, edge: RedisEdge):

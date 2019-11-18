@@ -1,10 +1,10 @@
-import time
+import os
 from statistics import mean
-from tqdm import tqdm
 
-from src.utils.mem_prof import MemDeltaProfiler
-from src.utils.cfpq_query import cfpq_query
-
+import redis
+from utils.server import start_redis_server, stop_redis_server
+from cfpq_redis.utils.cfpq_query import cfpq_query
+from cfpq_redis.configs.common import Config
 
 ALGO_LIST = ['cpu1', 'cpu3']
 MEM_INTERVAL_COUNT = 20
@@ -14,7 +14,10 @@ def get_grammar_file(grammar_path):
     return grammar_path.split('/')[-1]
 
 
-def test_performance_on_graph(graph_name, grammar_path, redis_instance, exec_count=1):
+def test_performance_on_graph(graph_name, grammar_path, config: Config, exec_count=1):
+    redis_instance = redis.Redis()
+    graph_rdb = graph_name.replace('.txt', '.rdb')
+
     result = {
         algo: {
             column: []
@@ -23,18 +26,14 @@ def test_performance_on_graph(graph_name, grammar_path, redis_instance, exec_cou
     }
 
     for algo in ALGO_LIST:
-        print(f'\tAlgo: {algo}')
-        # Get approximately query time
-        # exec_time = cfpq_query(algo, graph_name, grammar_path, redis_instance).time * 1.5
-        # exec_time = 1
-
-        # Run exec_count times algorithm
         for i in range(exec_count):
-            print(f'\t\tIter: {i}/{exec_count}')
-            # mem_prof = MemDeltaProfiler()
-            # mem_prof.start(redis_pid, exec_time / MEM_INTERVAL_COUNT, exec_time)
+            start_redis_server(config.redis_bin, config.redis_conf,
+                               os.path.join(config.redis_dumps_path, graph_rdb))
+
+            print(f'\t\tGraph: {graph_name}, Iter: {i}/{exec_count}, Algorithm: {algo}')
             resp = cfpq_query(algo, graph_name, grammar_path, redis_instance)
-            # max_mem = mem_prof.end()
+
+            stop_redis_server()
 
             result[algo]['iterations'].append(resp.iterations)
             result[algo]['control_sum'].append(resp.control_sums)
@@ -42,11 +41,10 @@ def test_performance_on_graph(graph_name, grammar_path, redis_instance, exec_cou
             result[algo]['rss'].append(resp.rss)
             result[algo]['vms'].append(resp.vms)
             result[algo]['shared'].append(resp.shared)
-            # result[algo]['mem'].append(max_mem)
     return result
 
 
-def test_performance_on_suite(test_suite, redis_instance, execute_count=10, statistics=(mean, min, max)):
+def test_performance_on_suite(test_suite, config: Config, execute_count=10, statistics=(mean, min, max)):
     full_results = {
         'graph': [],
         'grammar': []
@@ -58,8 +56,7 @@ def test_performance_on_suite(test_suite, redis_instance, execute_count=10, stat
     }
 
     for graph_name, grammar_path in test_suite:
-        print(f'Graph: {graph_name}\n')
-        res_test = test_performance_on_graph(graph_name, grammar_path, redis_instance, execute_count)
+        res_test = test_performance_on_graph(graph_name, grammar_path, config, exec_count=execute_count)
 
         full_results['graph'].extend([graph_name] * execute_count)
         full_results['grammar'].extend([get_grammar_file(grammar_path)] * execute_count)

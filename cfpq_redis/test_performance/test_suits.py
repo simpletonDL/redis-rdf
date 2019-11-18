@@ -1,13 +1,8 @@
 import os
-from configparser import ConfigParser
-from pprint import pprint
 from typing import List
+from cfpq_redis.configs.common import Config
 
-
-conf_parser = ConfigParser()
-conf_parser.read('config.ini')
-CFPQ_DATA_HOST = conf_parser.get('host_paths', 'CFPQ_Data')
-CFPQ_DATA_CLIENT = conf_parser.get('client_paths', 'CFPQ_Data')
+CONFIG = Config('../config.ini')
 
 
 def _get_grammar_path(cfpq_data: str, suite: str, grammar: str):
@@ -16,12 +11,12 @@ def _get_grammar_path(cfpq_data: str, suite: str, grammar: str):
 
 def get_additional_cases():
     return [
-        ('geospeices.txt', _get_grammar_path(CFPQ_DATA_HOST, 'RDF', 'geo.cnf'))
+        ('geospeices.txt', _get_grammar_path(CONFIG.cfpq_data_path, 'RDF', 'geo.cnf'))
     ]
 
 
 def get_suits_names():
-    suits_path = os.path.join(CFPQ_DATA_CLIENT, 'data', 'graphs')
+    suits_path = os.path.join(CONFIG.cfpq_data_path, 'data', 'graphs')
     return os.listdir(suits_path)
 
 
@@ -38,7 +33,7 @@ def get_grammar_cases():
 
 
 def get_graph_cases():
-    suites_dir = os.path.join(CFPQ_DATA_CLIENT, 'data', 'graphs')
+    suites_dir = os.path.join(CONFIG.cfpq_data_path, 'data', 'graphs')
 
     g_test_suits = {}
     for g_file in get_suits_names():
@@ -52,7 +47,7 @@ def _get_suits_cases(suits: List[str]):
     grammar_cases = get_grammar_cases()
 
     return sum([
-        sorted([(graph_case, _get_grammar_path(CFPQ_DATA_HOST, suite, grammar_case))
+        sorted([(graph_case, _get_grammar_path(CONFIG.cfpq_data_path, suite, grammar_case))
                 for graph_case in graph_cases[suite]
                 for grammar_case in grammar_cases[suite]],
                key=lambda case: (case[1], case[0]))

@@ -2,7 +2,7 @@
 
 import os
 
-from src.redis_loader import load
+from cfpq_redis.redis_loader import load
 from argparse import ArgumentParser
 import logging
 

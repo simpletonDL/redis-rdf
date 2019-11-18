@@ -2,15 +2,13 @@
 
 import datetime
 import os
-from pprint import pprint
+from argparse import ArgumentParser
+from cfpq_redis.configs.common import Config
 
 import pandas as pd
-from src.test_performance.test_performance import test_performance_on_suite
-from argparse import ArgumentParser
-
 import redis
-from configparser import ConfigParser
-from src.test_performance.test_suits import get_total_cases, get_suite_cases, get_suits_names, get_additional_cases
+from cfpq_redis.test_performance.test_performance import test_performance_on_suite
+from cfpq_redis.test_performance.test_suits import get_total_cases, get_suite_cases, get_suits_names, get_additional_cases
 
 FULL = 'full'
 ADDITIONAL = 'additional'
@@ -27,8 +25,11 @@ def main():
 
     args = parser.parse_args()
 
-    test_suite_name = args.test_suite_name
+    # Load config
+    config = Config('../config.ini')
 
+    # Get suits
+    test_suite_name = args.test_suite_name
     if test_suite_name == FULL:
         test_cases = get_total_cases()
     elif test_suite_name == ADDITIONAL:
@@ -37,8 +38,7 @@ def main():
         test_cases = get_suite_cases(test_suite_name)
 
     # Run test performance
-    redis_instance = redis.Redis(args.host, args.port)
-    full_results, statistic_results = test_performance_on_suite(test_cases, redis_instance, execute_count=10)
+    full_results, statistic_results = test_performance_on_suite(test_cases, config, execute_count=4)
 
     # Write results
     statistic_results_df = pd.DataFrame(statistic_results)
