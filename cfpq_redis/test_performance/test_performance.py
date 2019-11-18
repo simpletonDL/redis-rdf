@@ -2,7 +2,7 @@ import os
 from statistics import mean
 
 import redis
-from utils.server import start_redis_server, stop_redis_server
+from cfpq_redis.utils.server import start_redis_server, stop_redis_server
 from cfpq_redis.utils.cfpq_query import cfpq_query
 from cfpq_redis.configs.common import Config
 
