@@ -15,7 +15,7 @@ def get_additional_cases():
     ]
 
 
-def get_suits_names():
+def get_suite_names():
     suits_path = os.path.join(CONFIG.cfpq_data_path, 'data', 'graphs')
     return os.listdir(suits_path)
 
@@ -36,7 +36,7 @@ def get_graph_cases():
     suites_dir = os.path.join(CONFIG.cfpq_data_path, 'data', 'graphs')
 
     g_test_suits = {}
-    for g_file in get_suits_names():
+    for g_file in get_suite_names():
         g_test_suits[g_file] = [g for g in os.listdir(os.path.join(suites_dir, g_file, 'Matrices'))
                                 if not g.startswith('.')]
     return g_test_suits
@@ -59,4 +59,4 @@ def get_suite_cases(suite: str):
 
 
 def get_total_cases():
-    return get_additional_cases() + _get_suits_cases(get_suits_names())
+    return get_additional_cases() + _get_suits_cases(get_suite_names())
