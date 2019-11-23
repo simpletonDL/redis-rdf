@@ -1,0 +1,3 @@
+,graph,grammar,iterations_cpu1,control_sum_cpu1,time_cpu1,rss_cpu1,vms_cpu1,shared_cpu1
+0,fullgraph_10000.txt,A_star1.yrd,15,s: 100000000,755.168152,4051841,1923518,151
+1,fullgraph_10000.txt,A_star2.yrd,9,"s: 100000000, s1: 100000000",2401.448001,4286336,2231440,151
