@@ -26,6 +26,7 @@ def start_redis_server(bin_path, redis_conf_path, dump_path=None, port=6379):
 
 def stop_redis_server(port=6379):
     redis.Redis(port=port).shutdown(True)
+    os.remove('dump.rdb')
     print('Redis has stop')
 
 
