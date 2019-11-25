@@ -29,27 +29,25 @@ def stop_redis_server(port=6379):
     print('Redis has stop')
 
 
-def load_dumps(cfpq_data_path: str, redis_path, redis_dumps_path: str, suits, port=6379, host='localhost'):
-    redis_bin_path = os.path.join(redis_path, 'src', 'redis-server')
-    redis_conf_path = os.path.join(redis_path, 'redis.conf')
+def load_dump(graph_path, conf: Config, port=6379, host='localhost'):
+    graph = graph_path.split('/')[-1]
+    print(graph)
 
-    graph_suit_dir = os.path.join(cfpq_data_path, 'data', 'graphs')
+    if os.path.exists('dump.rdb'):
+        os.remove('dump.rdb')
+
+    start_redis_server(conf.redis_bin, conf.redis_conf)
+    load(graph_path, graph, host, port)
+    stop_redis_server()
+
+    os.replace('dump.rdb', os.path.join(conf.redis_dumps_path, graph.replace('.txt', '.rdb')))
+
+
+def load_dumps(suits, conf, port=6379, host='localhost'):
+    graph_suit_dir = os.path.join(conf.cfpq_data_path, 'data', 'graphs')
     for suite in suits:
         graph_dir = os.path.join(graph_suit_dir, suite, 'Matrices')
 
         for graph in filter(lambda s: not s.startswith('.'), os.listdir(graph_dir)):
-            print(graph)
             graph_path = os.path.join(graph_dir, graph)
-
-            if os.path.exists('dump.rdb'):
-                os.remove('dump.rdb')
-
-            start_redis_server(redis_bin_path, redis_conf_path)
-            load(graph_path, graph, host, port)
-            stop_redis_server()
-
-            os.replace('dump.rdb', os.path.join(redis_dumps_path, graph.replace('.txt', '.rdb')))
-
-
-def load_dumps_suit(suits, conf):
-    load_dumps(conf.cfpq_data_path, conf.redis_path, conf.redis_dumps_path, suits)
+            load_dump(graph_path, conf, port, host)
