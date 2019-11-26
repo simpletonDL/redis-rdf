@@ -1,0 +1,9 @@
+graph,Brackets.txt_time,Brackets.txt_memory,Brackets.txt_iters,node_count,edge_count,edges_counter
+worstcase_128.txt,0.3730506,768,4161,128,258,"{'A': 65, 'A_r': 65, 'B': 64, 'B_r': 64}"
+worstcase_16.txt,0.009005500000000001,0,73,16,34,"{'A': 9, 'A_r': 9, 'B': 8, 'B_r': 8}"
+worstcase_256.txt,8.7574127,8705,16513,256,514,"{'A': 129, 'A_r': 129, 'B': 128, 'B_r': 128}"
+worstcase_32.txt,0.0301712,0,273,32,66,"{'A': 17, 'A_r': 17, 'B': 16, 'B_r': 16}"
+worstcase_4.txt,0.0011398,0,7,4,10,"{'A': 3, 'A_r': 3, 'B_r': 2, 'B': 2}"
+worstcase_512.txt,34.5481205,14594,65793,512,1026,"{'A': 257, 'A_r': 257, 'B': 256, 'B_r': 256}"
+worstcase_64.txt,0.0635872,0,1057,64,130,"{'A': 33, 'A_r': 33, 'B': 32, 'B_r': 32}"
+worstcase_8.txt,0.0027662,0,21,8,18,"{'A': 5, 'A_r': 5, 'B': 4, 'B_r': 4}"

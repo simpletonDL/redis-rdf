@@ -25,7 +25,7 @@ def main():
         stop_redis_server()
 
     df = pd.DataFrame(resp)
-    df.to_csv(os.path.join('results', 'statistics.csv'), index=False)
+    df.to_csv(os.path.join('results', 'statistic.csv'), index=False)
 
 
 if __name__ == '__main__':

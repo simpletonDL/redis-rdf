@@ -71,7 +71,7 @@ def test_performance_on_suite(test_suite, config: Config, execute_count=10, stat
                 full_results.setdefault(key, [])
                 full_results[key].extend(values)
 
-            # Write statistics
+            # Write statistic
             for column in ['control_sum', 'iterations']:
                 first_value = execute_info[column][0]
                 assert all(x == first_value for x in execute_info[column])

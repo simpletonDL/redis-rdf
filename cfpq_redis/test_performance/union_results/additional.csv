@@ -1,0 +1,2 @@
+graph,geo.cnf_time,geo.cnf_memory,geo.cnf_iters,node_count,edge_count,edges_counter
+geospeices.txt,6.768492999999999,6835328,7,450609,4622922,"{'OTHER': 2091603, 'OTHER_r': 2091603, 'TR_r': 89062, 'T': 89062, 'BTR_r': 20867, 'BT': 20867, 'BTR': 20867, 'BT_r': 20867, 'TR': 89062, 'T_r': 89062}"
